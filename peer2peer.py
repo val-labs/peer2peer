@@ -6,7 +6,7 @@ from future.utils import viewitems
 
 class WebSocket(websocket.WebSocket): receive = websocket.WebSocket.recv
 
-__version__ = "1.6.1"
+__version__ = "1.7.0"
 
 Channels = defaultdict(list)
 
