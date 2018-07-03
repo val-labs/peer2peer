@@ -5,10 +5,10 @@ try:
 except ImportError:
     from distutils.core import setup
 setup(name='peer2peer',
-      version='1.7.0',
+      version='1.8.0',
       description='peer 2 peer',
       py_modules=['peer2peer'],
-      scripts=['peer2peer.py','p2svr','p2pub','p2sub'],
+      scripts=['peer2peer.py'],
       license='MIT',
       platforms='any',
       install_requires=[
