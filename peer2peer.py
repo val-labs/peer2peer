@@ -61,7 +61,7 @@ def unsubscribe_all(ws):
 
 def once_ws(ws):
     msg1 = ws.receive()
-    print msg1
+    print(msg1)
     if msg1 is None:
         return False
     elif msg1.startswith("sub "):
@@ -112,7 +112,7 @@ def serve(port, addr=''):
     WebSocketServer((addr, int(port)), ws_app).serve_forever()
 
 def sub(addr, channel_list='0'):
-    print repr(channel_list)
+    print(repr(channel_list))
     if addr.startswith(':'): addr = 'localhost' + addr
     ws = conn( addr )
     msg = "sub "+' '.join(channel_list.split())
@@ -135,5 +135,5 @@ if __name__ == '__main__':
     if A['serve']: serve(A['--port'])
     elif A['pub']: pub(A['<address>'], A['<channel>'], A['<msgfile>'])
     elif A['sub']: sub(A['<address>'], A['<channel>'])
-    else: print "bad args"
+    else: print("bad args")
 
