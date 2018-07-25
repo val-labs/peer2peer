@@ -1,11 +1,11 @@
-from dbd import *
+
 
 def create(genesis_filename):
     print "CREATEDB", genesis_filename
     data = open(genesis_filename).read()
     opendb()
-    db.Put("b.00000000.genesis",  data)
-    db.Put("longest-blockno", "0")
+    getdb().Put("b.00000000.genesis",  data)
+    getdb().Put("longest-blockno", "0")
     print "DAT", data
     pass
 

@@ -8,6 +8,9 @@ def connect():
     Ps = peer2peer.conn()
     pass
 
+def getdb():
+    return db
+
 def opendb():
     global db
     db = leveldb.LevelDB('db')
