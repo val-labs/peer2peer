@@ -30,16 +30,22 @@ def main():
             while 1:
                 msgs = peer2peer.recv(Ps)
                 msg = msgs[2]
-                arr = msg.split()
+                arr = msg.split(' ', 4)
                 print "ARR", arr
                 if   arr[1] == 'hola':
                     peer2peer.publish(Ps, arr[0], arr[2] + " YO!")
                 elif arr[1] == 'put':
-                    db.Put(arr[2], arr[3])
+                    db.Put(arr[3], arr[4])
                     peer2peer.publish(Ps, arr[0], arr[2] + " OK")
                 elif arr[1] == 'get':
                     try:
                         result = db.Get(arr[3])
+                        peer2peer.publish(Ps, arr[0], arr[2] + ' ' + result)
+                    except KeyError:
+                        peer2peer.publish(Ps, arr[0], arr[2])
+                elif arr[1] == 'keys':
+                    try:
+                        result = ' '.join(list(db.RangeIter(arr[3],arr[4],include_value=False)))
                         peer2peer.publish(Ps, arr[0], arr[2] + ' ' + result)
                     except KeyError:
                         peer2peer.publish(Ps, arr[0], arr[2])
@@ -59,7 +65,8 @@ def main():
                 pass
             pass
         print "AFTER"
-def xmain():main2('meow',mmain)
+
+def xmain(): main2('meow', mmain)
 
 if __name__ == "__main__":
     try: toolz.kill(PID_FNAME)
