@@ -11,6 +11,13 @@ def connect():
     msgs = peer2peer.recv(Ps)
     print "M", msgs
 
+def connect22():
+    global Ps
+    Ps = peer2peer.conn()
+    peer2peer.publish(Ps, "dbd", UUID + " hola 200")
+    msgs = peer2peer.recv(Ps)
+    print "M", msgs
+
 def connect2():
     print(get("key"))
     uuidx = str(uuid.uuid4())
@@ -65,6 +72,30 @@ def main():
                 pass
             pass
         print "AFTER"
+
+def main2(channel, callback):
+    while 1:
+        print "BEFORE"
+        try:
+            peer2peer.subscribe(Ps, channel)
+            while 1:
+                msgs = peer2peer.recv(Ps)
+                msg = msgs[2]
+                callback(msg)
+                time.sleep(0.2)
+        except:
+            tb.print_exc()
+            print "ERR"
+            time.sleep(1)
+            try:
+                connect()
+            except:
+                print "ERR2"
+                tb.print_exc()
+                pass
+            pass
+        print "AFTER"
+
 
 if __name__ == "__main__":
     print "I AM", UUID

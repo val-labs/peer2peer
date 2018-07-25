@@ -59,6 +59,7 @@ def main():
                 pass
             pass
         print "AFTER"
+def xmain():main2('meow',mmain)
 
 if __name__ == "__main__":
     try: toolz.kill(PID_FNAME)
