@@ -61,11 +61,12 @@ def unsubscribe_all(ws):
 
 def once_ws(ws):
     msg1 = ws.receive()
-    print(msg1)
+    #print(msg1)
     if msg1 is None:
         return False
     elif msg1.startswith("sub "):
         ch_names = msg1[4:].split()
+        print "sub", ch_names
         subscribev(ws, ch_names)
     elif msg1.startswith("pub CTL"):
         msg2 = int(ws.receive())
@@ -129,11 +130,22 @@ def pub(addr, channel_name='0', msgfile = '-'):
     ws.close()
     time.sleep(0.1)
     pass
-    
+
+# These are the client routines
+def subscribe(ws, channel_list='0'):
+    msg = "sub "+' '.join(channel_list.split())
+    return ws.send( msg )
+def publish(ws, ch, msg):
+    return sendv(['pub ' + ch, '2', msg], ws)
+def recv(ws):
+    m1 = ws.receive()
+    m2 = ws.receive()
+    m3 = ws.receive()
+    return m1, m2, m3
+
 if __name__ == '__main__':
     A = docopt(__doc__, version='Peer2Peer '+__version__)
     if A['serve']: serve(A['--port'])
     elif A['pub']: pub(A['<address>'], A['<channel>'], A['<msgfile>'])
     elif A['sub']: sub(A['<address>'], A['<channel>'])
     else: print("bad args")
-

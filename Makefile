@@ -1,5 +1,8 @@
-d: ; docker build .
-xtest: test
+#d: ; docker build .
+clitest:
+	python -mdbc
+#	python -mdbd
+#xtest: test
 all:
 	@echo "try: install | clean"
 install: realclean
