@@ -7,14 +7,42 @@ def connect():
     global Ps
     Ps = peer2peer.conn()
     peer2peer.subscribe(Ps, "dbd " + UUID)
-    peer2peer.publish(Ps, "dbd", "hello from " + UUID)
-
-    while 1:
-        msgs = peer2peer.recv(Ps)
-        print "M", msgs
-        time.sleep(0.2)
-        pass
+    peer2peer.publish(Ps, "dbd", UUID + " hola 200")
+    msgs = peer2peer.recv(Ps)
+    print "M", msgs
+    print(get("key"))
+    uuidx = str(uuid.uuid4())
+    print(put("newkey", "newval."+uuidx))
+    print(get("nope"))
+    print(get("newkey"))
+    #while 1:
+    #    msgs = peer2peer.recv(Ps)
+    #    print "M", msgs
+    #    time.sleep(0.2)
+    #    pass
     pass
+
+_SeqNo  = 132767
+
+def next_seq_no():
+    global _SeqNo
+    _SeqNo += 1
+    return _SeqNo
+
+def get(key):
+    seq = next_seq_no()
+    peer2peer.publish(Ps, "dbd", UUID + " get 50 " + key)
+    msgs = peer2peer.recv(Ps)
+    print "MG", msgs
+    return msgs[2]
+
+def put(key, val):
+    seq = next_seq_no()
+    msg = ' '.join([UUID, "put", str(seq), val])
+    peer2peer.publish(Ps, "dbd", msg)
+    msgs = peer2peer.recv(Ps)
+    print "MP", msgs
+    return msgs[2]
 
 def dbd_msg(*a, **kw):
     print "DBD MSG", repr((a, kw))

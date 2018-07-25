@@ -1,3 +1,4 @@
+import leveldb
 import os, sys, peer2peer, time, toolz, traceback as tb
 
 PID_FNAME = 'dbd.pid'
@@ -7,14 +8,15 @@ def connect():
     Ps = peer2peer.conn()
     pass
 
+def opendb():
+    global db
+    db = leveldb.LevelDB('db')
+
 def init():
+    opendb()
     print "SERVE IT UP"
     connect()
-    print Ps
-    pass
-
-def dbd_msg(*a, **kw):
-    print "DBD MSG", repr((a, kw))
+    print "CONNECTED"
     pass
 
 def main():
@@ -23,16 +25,24 @@ def main():
         try:
             peer2peer.subscribe(Ps, 'dbd')
             while 1:
-                print "X"
                 msgs = peer2peer.recv(Ps)
-                print "M1", msgs
                 msg = msgs[2]
-
-                if msg.startswith('hello from '):
-                    frm = msg[len('hello from '):]
-                    print frm
-                    peer2peer.publish(Ps, frm, "HI!")
-                
+                arr = msg.split()
+                print "ARR", arr
+                if   arr[1] == 'hola':
+                    peer2peer.publish(Ps, arr[0], arr[2] + " YO!")
+                elif arr[1] == 'put':
+                    db.Put(arr[2], arr[3])
+                    peer2peer.publish(Ps, arr[0], arr[2] + " OK")
+                elif arr[1] == 'get':
+                    try:
+                        result = db.Get(arr[3])
+                        peer2peer.publish(Ps, arr[0], arr[2] + ' ' + result)
+                    except KeyError:
+                        peer2peer.publish(Ps, arr[0], arr[2])
+                else:
+                    print "ERROR, DONT KNOW HOW TO DO THAT"
+                    pass
                 time.sleep(0.2)
         except:
             tb.print_exc()
@@ -48,8 +58,8 @@ def main():
         print "AFTER"
 
 if __name__ == "__main__":
-    try: toolz.kill(PID_FNAME)    
+    try: toolz.kill(PID_FNAME)
     except: pass
-    #init(); toolz.daemon(main, PID_FNAME)
-    init(); main()
-
+    if   sys.argv[1:] and sys.argv[1]=='-k': exit()
+    elif sys.argv[1:] and sys.argv[1]=='-f': init(), main()
+    else: init(), toolz.daemon(main, PID_FNAME)

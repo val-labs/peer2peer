@@ -60,13 +60,13 @@ def unsubscribe_all(ws):
         except ValueError: pass
 
 def once_ws(ws):
-    print "ONCE"
     msg1 = ws.receive()
-    print(msg1)
+    #print(msg1)
     if msg1 is None:
         return False
     elif msg1.startswith("sub "):
         ch_names = msg1[4:].split()
+        print "sub", ch_names
         subscribev(ws, ch_names)
     elif msg1.startswith("pub CTL"):
         msg2 = int(ws.receive())
