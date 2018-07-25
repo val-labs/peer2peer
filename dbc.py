@@ -10,6 +10,8 @@ def connect():
     peer2peer.publish(Ps, "dbd", UUID + " hola 200")
     msgs = peer2peer.recv(Ps)
     print "M", msgs
+
+def connect2():
     print(get("key"))
     uuidx = str(uuid.uuid4())
     print(put("newkey", "newval."+uuidx))
@@ -67,4 +69,6 @@ def main():
 if __name__ == "__main__":
     print "I AM", UUID
     connect()
+    print "ok1"
+    connect2()
     print "ok2"
