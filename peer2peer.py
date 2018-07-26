@@ -143,6 +143,23 @@ def recv(ws):
     m3 = ws.receive()
     return m1, m2, m3
 
+class Server:
+    def __init__(_, port=8080, addr=''): serve(port, addr)
+    pass
+
+class Client:
+    def __init__(_, address=':8080'): _.ws = conn(address)
+    def  pub(_, ch, msg): return publish(_.ws, ch, msg)
+    def  sub(_, ch):      return subscribe(_.ws, ch)
+    def recv(_):          return recv()
+    def loop(_, callback):
+        while 1:
+            print "LOOP"
+            callback(recv(), _)
+            pass
+        return recv()
+    pass
+
 if __name__ == '__main__':
     A = docopt(__doc__, version='Peer2Peer '+__version__)
     if A['serve']: serve(A['--port'])
