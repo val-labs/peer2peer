@@ -14,6 +14,7 @@ def getdb():
 def opendb():
     global db
     db = leveldb.LevelDB('db')
+    return db
 
 def init():
     opendb()
@@ -21,6 +22,9 @@ def init():
     connect()
     print "CONNECTED"
     pass
+
+def keys(start, stop=None):
+    return db.RangeIter(start,stop,include_value=False)
 
 def main():
     while 1:
@@ -45,10 +49,13 @@ def main():
                         peer2peer.publish(Ps, arr[0], arr[2])
                 elif arr[1] == 'keys':
                     try:
-                        result = ' '.join(list(db.RangeIter(arr[3],arr[4],include_value=False)))
+                        result = ' '.join(list(keys(arr[3],arr[4])))
                         peer2peer.publish(Ps, arr[0], arr[2] + ' ' + result)
                     except KeyError:
                         peer2peer.publish(Ps, arr[0], arr[2])
+                elif arr[1] == 'zap':
+                    for key in keys(''):
+                        db.Delete(key)
                 else:
                     print "ERROR, DONT KNOW HOW TO DO THAT"
                     pass
@@ -65,8 +72,6 @@ def main():
                 pass
             pass
         print "AFTER"
-
-def xmain(): main2('meow', mmain)
 
 if __name__ == "__main__":
     try: toolz.kill(PID_FNAME)

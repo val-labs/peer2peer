@@ -7,13 +7,14 @@ Usage:
   peer2peer.py serve [--port=<num>]
   peer2peer.py pub <address> <channel> <msgfile>
   peer2peer.py sub <address> <channel>
+  peer2peer.py pipe <address_from> <address_to> <channel>
   peer2peer.py (-h | --help)
   peer2peer.py --version
 
 Options:
   -h --help     Show this screen.
   --version     Show version.
-  --port=<num>  Speed in knots [default: 8080].
+  --port=<num>  port to bind [default: 8080].
   <address>     remote hostname:port
   <channel>     name of channel (no whitespace)
   <msgfile>     filename of message or '-' to use stdin
@@ -28,7 +29,7 @@ from docopt import docopt
 
 class WebSocket(websocket.WebSocket): receive = websocket.WebSocket.recv
 
-__version__ = "1.8.1"
+__version__ = "1.8.2"
 
 Channels = defaultdict(list)
 
