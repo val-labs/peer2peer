@@ -96,6 +96,7 @@ def once_ws(ws):
 
 def loop_ws(ws, channels = []):
     try:
+        if not ws: raise KeyError
         subscribev(ws, [str(id(ws)), "0"] + channels)
         while once_ws(ws): pass
     finally:
@@ -104,10 +105,11 @@ def loop_ws(ws, channels = []):
 def serve(port, addr=''):
     def ws_app(env, start):
         try:
+            print("WWWSSS", env.get("wsgi.websocket") )
             loop_ws( env.get("wsgi.websocket") )
             return []
         except KeyError:
-            start('500 ' + msg, [('Content-type', 'text/html')])
+            start('500 Not a WebSocket', [('Content-type', 'text/html')])
             return ['Not a Websocket\n']
     print("Serving port %s..." % port)
     WebSocketServer((addr, int(port)), ws_app).serve_forever()
@@ -150,14 +152,22 @@ class Server:
 class Client:
     def __init__(_, address=':8080'): _.ws = conn(address)
     def  pub(_, ch, msg): return publish(_.ws, ch, msg)
+    # return sendv(['pub ' + ch, '2', msg], ws)
     def  sub(_, ch):      return subscribe(_.ws, ch)
+    #msg = "sub "+' '.join(channel_list.split())
+    #return ws.send( msg )
     def recv(_):          return recv()
+    #m1 = ws.receive()
+    #m2 = ws.receive()
+    #m3 = ws.receive()
+    #return m1, m2, m3
     def loop(_, callback):
         while 1:
-            print "LOOP"
-            callback(recv(), _)
+            r = recv()
+            print "LOOP", repr(r)
+            callback(r, _)
             pass
-        return recv()
+        pass
     pass
 
 if __name__ == '__main__':
