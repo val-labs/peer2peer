@@ -7,16 +7,21 @@ Usage:
   peer2peer.py serve [--port=<num>]
   peer2peer.py pub <address> <channel> <msgfile>
   peer2peer.py sub <address> <channel>
+  peer2peer.py pipe <from_address> <from_channel> <to_address> <to_channel>
   peer2peer.py (-h | --help)
   peer2peer.py --version
 
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
-  --port=<num>  Speed in knots [default: 8080].
-  <address>     remote hostname:port
-  <channel>     name of channel (no whitespace)
-  <msgfile>     filename of message or '-' to use stdin
+  -h --help      Show this screen.
+  --version      Show version.
+  --port=<num>   Speed in knots [default: 8080].
+  <address>      remote hostname:port
+  <from_address> remote hostname:port
+  <to_address>   remote hostname:port
+  <channel>      name of channel (no whitespace)
+  <from_channel> name of channel (no whitespace)
+  <to_channel>   name of channel (no whitespace) [default:]
+  <msgfile>      filename of message or '-' to use stdin
 
 """
 from gevent import monkey; monkey.patch_all()
@@ -28,7 +33,7 @@ from docopt import docopt
 
 class WebSocket(websocket.WebSocket): receive = websocket.WebSocket.recv
 
-__version__ = "1.9.0"
+__version__ = "1.9.1"
 
 Channels = defaultdict(list)
 
@@ -131,6 +136,20 @@ def pub(addr, channel_name='0', msgfile = '-'):
     time.sleep(0.1)
     pass
 
+def pipe(sub_from, from_channel, pub_to, to_channel=''):
+    to_channel = to_channel or from_channel
+    print("Piping %s##%s to %s##%s..." % (sub_from, from_channel, pub_to, to_channel))
+    ws1 = conn(sub_to)
+    subscribe(ws1, from_channel)
+    ws2 = conn(pub_to)
+    while 1:
+        msgs = peer2peer.recv(ws1)
+        msg = msgs[2]
+        print "MSG", msg
+        publish(ws2, to_channel, msg)
+        time.sleep(0.2)
+        pass
+
 # These are the client routines
 def subscribe(ws, channel_list='0'):
     msg = "sub "+' '.join(channel_list.split())
@@ -148,4 +167,5 @@ if __name__ == '__main__':
     if A['serve']: serve(A['--port'])
     elif A['pub']: pub(A['<address>'], A['<channel>'], A['<msgfile>'])
     elif A['sub']: sub(A['<address>'], A['<channel>'])
+    elif A['pipe']:pipe(A['<from_address>'], A['<from_channel>'], A['<to_address>'], A['<to_channel>'])
     else: print("bad args")
