@@ -71,7 +71,7 @@ def once_ws(ws):
         return False
     elif msg1.startswith("sub "):
         ch_names = msg1[4:].split()
-        print "sub", ch_names
+        print("sub", ch_names)
         subscribev(ws, ch_names)
     elif msg1.startswith("pub CTL"):
         msg2 = int(ws.receive())
@@ -139,13 +139,13 @@ def pub(addr, channel_name='0', msgfile = '-'):
 def pipe(sub_from, from_channel, pub_to, to_channel=''):
     to_channel = to_channel or from_channel
     print("Piping %s##%s to %s##%s..." % (sub_from, from_channel, pub_to, to_channel))
-    ws1 = conn(sub_to)
+    ws1 = conn(sub_from)
     subscribe(ws1, from_channel)
     ws2 = conn(pub_to)
     while 1:
-        msgs = peer2peer.recv(ws1)
+        msgs = recv(ws1)
         msg = msgs[2]
-        print "MSG", msg
+        print("MSG", msg)
         publish(ws2, to_channel, msg)
         time.sleep(0.2)
         pass
