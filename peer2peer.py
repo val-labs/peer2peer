@@ -24,7 +24,7 @@ Options:
   <msgfile>      filename of message or '-' to use stdin
 
 """
-from gevent import monkey; monkey.patch_all()
+#from gevent import monkey; monkey.patch_all()
 import os, sys, websocket, gevent, time, traceback, geventwebsocket
 from geventwebsocket import WebSocketServer
 from collections import *
@@ -33,7 +33,7 @@ from docopt import docopt
 
 class WebSocket(websocket.WebSocket): receive = websocket.WebSocket.recv
 
-__version__ = "1.9.1"
+__version__ = "2.0.0"
 
 Channels = defaultdict(list)
 
@@ -145,7 +145,7 @@ def pipe(sub_from, from_channel, pub_to, to_channel=''):
     while 1:
         msgs = recv(ws1)
         msg = msgs[2]
-        print("MSG", msg)
+        #print("MSG", msg)
         publish(ws2, to_channel, msg)
         time.sleep(0.2)
         pass
