@@ -33,7 +33,7 @@ from docopt import docopt
 
 class WebSocket(websocket.WebSocket): receive = websocket.WebSocket.recv
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 
 Channels = defaultdict(list)
 
@@ -136,6 +136,15 @@ def pub(addr, channel_name='0', msgfile = '-'):
     time.sleep(0.1)
     pass
 
+def pubs(addr, channel_name, data):
+    if addr.startswith(':'): addr = 'localhost' + addr
+    ws = conn( addr )
+    ch = channel_name
+    sendv(['pub ' + ch, '2', data], ws)
+    ws.close()
+    time.sleep(0.1)
+    pass
+
 def pipe(sub_from, from_channel, pub_to, to_channel=''):
     to_channel = to_channel or from_channel
     print("Piping %s##%s to %s##%s..." % (sub_from, from_channel, pub_to, to_channel))
@@ -143,11 +152,9 @@ def pipe(sub_from, from_channel, pub_to, to_channel=''):
     subscribe(ws1, from_channel)
     ws2 = conn(pub_to)
     while 1:
-        msgs = recv(ws1)
-        msg = msgs[2]
-        #print("MSG", msg)
+        msg = recv(ws1)[2]
         publish(ws2, to_channel, msg)
-        time.sleep(0.2)
+        time.sleep(0.1)
         pass
 
 # These are the client routines
