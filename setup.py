@@ -4,7 +4,7 @@ try:
 except ImportError:
     from distutils.core import setup
 setup(name='peer2peer',
-      version='1.9.1',
+      version='2.0.0',
       description='peer 2 peer',
       py_modules=['peer2peer'],
       scripts=['peer2peer.py'],
