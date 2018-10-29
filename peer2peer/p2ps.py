@@ -5,9 +5,6 @@ A simple peer-to-peer websocket solution (in python)
 
 Usage:
   peer2peer.py serve [--port=<num>]
-  peer2peer.py pub <address> <channel> <msgfile>
-  peer2peer.py sub <address> <channel>
-  peer2peer.py pipe <from_address> <from_channel> <to_address> <to_channel>
   peer2peer.py (-h | --help)
   peer2peer.py --version
 
@@ -16,40 +13,23 @@ Options:
   --version      Show version.
   --port=<num>   Speed in knots [default: 8080].
   <address>      remote hostname:port
-  <from_address> remote hostname:port
-  <to_address>   remote hostname:port
-  <channel>      name of channel (no whitespace)
-  <from_channel> name of channel (no whitespace)
-  <to_channel>   name of channel (no whitespace) [default:]
-  <msgfile>      filename of message or '-' to use stdin
 
 """
-#from gevent import monkey; monkey.patch_all()
-import os, sys, websocket, gevent, time, traceback, geventwebsocket
+import os, sys, time, traceback
 from geventwebsocket import WebSocketServer
 from collections import *
 from future.utils import viewitems
 from docopt import docopt
 
-class WebSocket(websocket.WebSocket): receive = websocket.WebSocket.recv
-
 __version__ = "2.1.0"
 
 Channels = defaultdict(list)
 
-def sendv(msgs, ws): [ws.send(msg) for msg in msgs]
-
 def publishv(msgv, wsx = None, channel_name = "0"):
     for ws in Channels[channel_name] + Channels['ALL']:
         if ws != wsx:
-            try:    sendv(msgv, ws)
+            try:  [ ws.send(msg) for msg in msgv ]
             except: traceback.print_exc()
-
-def conn(addr = "127.0.0.1:8080/"):
-    print("Connecting to", addr)
-    ws = WebSocket()
-    ws.connect("ws://" + addr)
-    return ws
 
 def subscribev(ws, ch_names, verbose = False):
     if not ch_names:
@@ -117,62 +97,7 @@ def serve(port, addr=''):
     print("Serving port %s..." % port)
     WebSocketServer((addr, int(port)), ws_app).serve_forever()
 
-def sub(addr, channel_list='0'):
-    print(repr(channel_list))
-    if addr.startswith(':'): addr = 'localhost' + addr
-    ws = conn( addr )
-    msg = "sub "+' '.join(channel_list.split())
-    ws.send( msg )
-    loop_ws( ws )
-
-def pub(addr, channel_name='0', msgfile = '-'):
-    msgfile = sys.stdin if msgfile is '-' else open(msgfile)
-    data = msgfile.read()
-    if addr.startswith(':'): addr = 'localhost' + addr
-    ws = conn( addr )
-    ch = channel_name
-    sendv(['pub ' + ch, '2', data], ws)
-    ws.close()
-    time.sleep(0.1)
-    pass
-
-def pubs(addr, channel_name, data):
-    if addr.startswith(':'): addr = 'localhost' + addr
-    ws = conn( addr )
-    ch = channel_name
-    sendv(['pub ' + ch, '2', data], ws)
-    ws.close()
-    time.sleep(0.1)
-    pass
-
-def pipe(sub_from, from_channel, pub_to, to_channel=''):
-    to_channel = to_channel or from_channel
-    print("Piping %s##%s to %s##%s..." % (sub_from, from_channel, pub_to, to_channel))
-    ws1 = conn(sub_from)
-    subscribe(ws1, from_channel)
-    ws2 = conn(pub_to)
-    while 1:
-        msg = recv(ws1)[2]
-        publish(ws2, to_channel, msg)
-        time.sleep(0.1)
-        pass
-
-# These are the client routines
-def subscribe(ws, channel_list='0'):
-    msg = "sub "+' '.join(channel_list.split())
-    return ws.send( msg )
-def publish(ws, ch, msg):
-    return sendv(['pub ' + ch, '2', msg], ws)
-def recv(ws):
-    m1 = ws.receive()
-    m2 = ws.receive()
-    m3 = ws.receive()
-    return m1, m2, m3
-
 if __name__ == '__main__':
     A = docopt(__doc__, version='Peer2Peer '+__version__)
     if A['serve']: serve(A['--port'])
-    elif A['pub']: pub(A['<address>'], A['<channel>'], A['<msgfile>'])
-    elif A['sub']: sub(A['<address>'], A['<channel>'])
-    elif A['pipe']:pipe(A['<from_address>'], A['<from_channel>'], A['<to_address>'], A['<to_channel>'])
     else: print("bad args")

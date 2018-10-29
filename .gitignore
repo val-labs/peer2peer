@@ -2,6 +2,8 @@
 __pycache__
 *.pyc
 .ve?
+.v2
+.v3
 
 build
 dist
