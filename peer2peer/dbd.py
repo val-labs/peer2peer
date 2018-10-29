@@ -1,19 +1,17 @@
-import leveldb
-import os, sys, peer2peer, time, toolz, traceback as tb
+import sys, time, leveldb, toolz, traceback as tb
+from peer2peer import p2pc
 
 PID_FNAME = 'dbd.pid'
 
-def connect():
+def connect(address = 'ws://127.1:9090'):
     global Ps
-    Ps = peer2peer.conn()
+    Ps = p2pc.WebSocket.create(address)
     pass
 
-def opendb():
-    global db
-    db = leveldb.LevelDB('db')
-
 def init():
-    opendb()
+    global db
+    print "OPEN DB"
+    db = leveldb.LevelDB('db')
     print "SERVE IT UP"
     connect()
     print "CONNECTED"
@@ -23,23 +21,25 @@ def main():
     while 1:
         print "BEFORE"
         try:
-            peer2peer.subscribe(Ps, 'dbd')
+            p2pc.subscribe(Ps, 'dbd')
             while 1:
-                msgs = peer2peer.recv(Ps)
-                msg = msgs[2]
+                print("QQQ")
+                msg = p2pc.get_next_published(Ps)
+                print("ATN", msg )
                 arr = msg.split()
                 print "ARR", arr
                 if   arr[1] == 'hola':
-                    peer2peer.publish(Ps, arr[0], arr[2] + " YO!")
+                    p2pc.publish(Ps, arr[0], arr[2] + " YO!")
                 elif arr[1] == 'put':
+                    print(repr((arr[2], arr[3])))
                     db.Put(arr[2], arr[3])
-                    peer2peer.publish(Ps, arr[0], arr[2] + " OK")
+                    p2pc.publish(Ps, arr[0], arr[2] + " OK")
                 elif arr[1] == 'get':
                     try:
                         result = db.Get(arr[3])
-                        peer2peer.publish(Ps, arr[0], arr[2] + ' ' + result)
+                        p2pc.publish(Ps, arr[0], arr[2] + ' ' + result)
                     except KeyError:
-                        peer2peer.publish(Ps, arr[0], arr[2])
+                        p2pc.publish(Ps, arr[0], arr[2])
                 else:
                     print "ERROR, DONT KNOW HOW TO DO THAT"
                     pass
