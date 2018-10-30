@@ -23,9 +23,7 @@ def get(key):
     p2pc.publish(Ps, "dbd",
                  ' '.join([UUID, "get", str(next_seq_no()), key]))
     ret = p2pc.get_next_published(Ps).split(' ', 1)
-    if len(ret) > 1:
-        return ret[1]
-    raise SystemExit(1)
+    return ret[1] if len(ret) > 1 else ''
 
 def put(key, val):
     p2pc.publish(Ps, "dbd",
@@ -38,11 +36,16 @@ def openfile(fname):
 def main(args):
     if   args[0] == 'get':
         key = args[1]
-        connect() and sys.stdout.write( get(key) )
+        connect()
+        val = get(key)
+        if not val:
+            raise SystemExit(1)
+        sys.stdout.write( val )
     elif args[0] == 'put':
         key = args[1]
         dat = openfile(args[2]).read()
-        connect() and put(key, dat)
+        connect()
+        put(key, dat)
     else:
         raise Exception("BAD COMMAND")
     

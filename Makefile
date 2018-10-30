@@ -2,7 +2,7 @@
 #	tree .
 test: clean .v2 .v3
 	@echo ==AAAA
-	PYTHONPATH=. .v2/bin/python peer2peer/dbc.py get qwert
+	PYTHONPATH=. .v2/bin/python peer2peer/dbc.py get qwert || echo SHOULD FAIL
 	@echo ==BBBB
 	PYTHONPATH=. .v2/bin/python peer2peer/dbc.py put qwert Makefile
 	@echo ==CCCC
