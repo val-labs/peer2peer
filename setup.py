@@ -11,6 +11,7 @@ setup(name='peer2peer',
                'peer2peer/p2ps.py'],
       install_requires=[
           'gevent-websocket', 'gevent', 'future',
+          'leveldb',
           'websocket-client', 'docopt'],
       platforms='any',
       license='MIT')

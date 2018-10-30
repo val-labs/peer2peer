@@ -1,8 +1,10 @@
 import os, sys
 
 def kill(pid_filename):
-    os.kill(int(open(pid_filename).read()), 9)
-    os.unlink(pid_filename)
+    try: os.kill(int(open(pid_filename).read()), 9)
+    except IOError, e:  pass # eat it
+    try:  os.unlink(pid_filename)
+    except OSError, e:  pass # eat it
 
 def daemon(main, pid_filename):
     # do the UNIX double-fork magic, see Stevens' "Advanced 
